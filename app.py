@@ -845,11 +845,40 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  
+  
+  error = False
 
+# we poppulate POST request with the created artist's data to commit all data to the database 
+  try: 
+    name = request.form['name']
+    city = request.form['city']
+    state = request.form['state']
+    phone = request.form['phone']
+    genres = request.form.getlist('genres'),
+    facebook_link = request.form['facebook_link']
+    image_link = request.form['image_link']
+    website = request.form['website']
+    seeking_venue = True if 'seeking_venue' in request.form else False
+    seeking_description = request.form['seeking_description']
+
+    artist = Artist(name=name, city=city, state=state, phone=phone, genres=genres, facebook_link=facebook_link, image_link=image_link, website=website, seeking_venue=seeking_venue, seeking_description=seeking_description)
+    db.session.add(artist)
+    db.session.commit()
+  except: 
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally: 
+    db.session.close()
+  if error: 
   # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    flash('Artist ' + request.form['name'] + ' was successfully listed!')
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
+  if not error: 
+    flash('Artist ' + request.form['name'] + ' was successfully listed!')
+ 
   return render_template('pages/home.html')
 
 
@@ -861,6 +890,27 @@ def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
+ 
+ # query to select all shows
+ shows_query = db.session.query(Show).join(Artist).join(Venue).all()
+
+  data = []
+
+  # appending all shows data to the data list
+  for show in shows_query: 
+    data.append({
+      "venue_id": show.venue_id,
+      "venue_name": show.venue.name,
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name, 
+      "artist_image_link": show.artist.image_link,
+      "start_time": show.start_time.strftime('%Y-%m-%d %H:%M:%S')
+    })
+  
+  return render_template('pages/shows.html', shows=data)
+ 
+ '''
+ Mockup data
   data=[{
     "venue_id": 1,
     "venue_name": "The Musical Hop",
@@ -897,7 +947,8 @@ def shows():
     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     "start_time": "2035-04-15T20:00:00.000Z"
   }]
-  return render_template('pages/shows.html', shows=data)
+  '''
+
 
 @app.route('/shows/create')
 def create_shows():
@@ -909,7 +960,25 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # TODO: insert form data as a new Show record in the db, instead
-
+  
+  # the created show data is committed to the database
+  error = False
+  try: 
+    artist_id = request.form['artist_id']
+    venue_id = request.form['venue_id']
+    start_time = request.form['start_time']
+    show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
+    db.session.add(show)
+    db.session.commit()
+  except: 
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally: 
+    db.session.close()
+  if error: 
+    flash('An error occurred. Show could not be listed.')
+  if not error: 
   # on successful db insert, flash success
   flash('Show was successfully listed!')
   # TODO: on unsuccessful db insert, flash an error instead.
