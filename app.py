@@ -193,8 +193,6 @@ def search_venues():
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
   
-  def search_venues():
-
   # first we receive the search from the user input submitted by the form, and adding a default empty string value
   search_term = request.form.get('search_term', ' ')
 
