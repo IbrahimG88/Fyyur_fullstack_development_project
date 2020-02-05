@@ -215,6 +215,9 @@ def search_venues():
     "data": data
   }
   
+  # finally we render the template search_venues.html with the response object
+  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+
   
   '''
   # Mockup data
@@ -228,13 +231,71 @@ def search_venues():
   }
   '''
 
-# finally we render the template search_venues.html with the response object
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
+  
+  # first we get the id from the route url and create a venue object for that specific venue
+  venue = Venue.query.get(venue_id)
+
+  # show an error if no venue id was added in the url
+  if not venue: 
+    return render_template('errors/404.html')
+
+# next we create two  queries for the upcoming shows and the other for the previous shows by comparing datetimes
+  upcoming_shows_query = db.session.query(Show).join(Artist).filter(Show.venue_id==venue_id).filter(Show.start_time>datetime.now()).all()
+  upcoming_shows = []
+
+  past_shows_query = db.session.query(Show).join(Artist).filter(Show.venue_id==venue_id).filter(Show.start_time<datetime.now()).all()
+  past_shows = []
+
+# here we loop over the past shows and append each shows' data to the empty list psat_shows
+  for show in past_shows_query:
+    past_shows.append({
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name,
+      "artist_image_link": show.artist.image_link,
+      "start_time": show.start_time.strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+# we loop over the upcoming shows and append their data
+  for show in upcoming_shows_query:
+    upcoming_shows.append({
+      "artist_id": show.artist_id,
+      "artist_name": show.artist.name,
+      "artist_image_link": show.artist.image_link,
+      "start_time": show.start_time.strftime("%Y-%m-%d %H:%M:%S")    
+    })
+
+# we create the data object that contains all venue details, the past and upcoming shows and other details
+# that were added as attributes from the venue object
+  data = {
+    "id": venue.id,
+    "name": venue.name,
+    "genres": venue.genres,
+    "address": venue.address,
+    "city": venue.city,
+    "state": venue.state,
+    "phone": venue.phone,
+    "website": venue.website,
+    "facebook_link": venue.facebook_link,
+    "seeking_talent": venue.seeking_talent,
+    "seeking_description": venue.seeking_description,
+    "image_link": venue.image_link,
+    "past_shows": past_shows,
+    "upcoming_shows": upcoming_shows,
+    "past_shows_count": len(past_shows),
+    "upcoming_shows_count": len(upcoming_shows),
+  }
+  
+  return render_template('pages/show_venue.html', venue=data)
+
+  
+  '''
+  Mockup data:
+
   data1={
     "id": 1,
     "name": "The Musical Hop",
@@ -312,8 +373,10 @@ def show_venue(venue_id):
     "past_shows_count": 1,
     "upcoming_shows_count": 1,
   }
+    
   data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
   return render_template('pages/show_venue.html', venue=data)
+'''
 
 #  Create Venue
 #  ----------------------------------------------------------------
