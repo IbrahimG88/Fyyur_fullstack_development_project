@@ -52,6 +52,9 @@ class Venue(db.Model):
     #relationship to child show
     show = db.relationship('Show', backref='venue',  lazy =True)
 
+    def __repr__(self):
+      return f'<User {self.id}, {self.name}>'
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
@@ -72,6 +75,9 @@ class Artist(db.Model):
     #relationship to child show
     show = db.relationship('Show', backref='artist',  lazy =True)
 
+    def __repr__(self):
+      return f'<User {self.id}, {self.name}>'
+      
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 #done
 
