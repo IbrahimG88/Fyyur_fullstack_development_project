@@ -192,6 +192,34 @@ def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+  
+  def search_venues():
+
+  # first we receive the search from the user input submitted by the form, and adding a default empty string value
+  search_term = request.form.get('search_term', ' ')
+
+  # next we use the query method ilike to search for incase sensitive values in the venue names from the database
+  search_result = db.session.query(Venue).filter(Venue.name.ilike(f'%{search_term}%')).all()
+  
+  data = []
+
+# then we loop over all matching results, and create data for the matching Venues and their number of upcoming shows
+  for result in search_result:
+    data.append({
+      "id": result.id,
+      "name": result.name,
+      "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == result.id).filter(Show.start_time > datetime.now()).all()),
+    })
+  
+  # the response contains the count of matching venues and the data list which wasa created
+  response={
+    "count": len(search_result),
+    "data": data
+  }
+  
+  
+  '''
+  # Mockup data
   response={
     "count": 1,
     "data": [{
@@ -200,6 +228,9 @@ def search_venues():
       "num_upcoming_shows": 0,
     }]
   }
+  '''
+
+# finally we render the template search_venues.html with the response object
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
