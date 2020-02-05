@@ -123,28 +123,69 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
+  # done
+
+
+  current_time = datetime.now().strftime('%Y-%m-%d %H:%S:%M')
+
+  # all_cities_venues contains all venues form all cities
+  all_cities_venues = Venue.query.group_by(Venue.id, Venue.state, Venue.city).all()
+ 
+  # an empty list which all venues data will be appended to   
+  data =[]
+
+# here are looping over venues per area or city and a variable upcoming shows that gets the
+# shows that will happen in the future
+  for area in all_cities_venues:
+    area_venues = Venue.query.filter_by(state=area.state).filter_by(city=area.city).all()
+    upcoming_shows = area.shows.filter(Show.start_time > current_time).all()
+    venue_data = []
+
+    # next we loop over the different venues in a single city and each venues details, id name and upcoming shows
+    # to append the details to the venue_data empty list
+    for venue in area_venues:
+      shows = Show.query.filter_by(venue_id=venue.id).all()
+      venue_data.append = {
+            'id': venue.id,
+            'name': venue.name,
+            'num_upcoming_shows': len(upcoming_shows)
+      } 
+
+    # finally we append venue_data to the data list and the venue's city and state
+    data.append({
+      "city": area.city,
+      "state": area.state, 
+      "venues": venue_data
+    })
+
+  # next the data is rendered in the html template 'venues.html'
   return render_template('pages/venues.html', areas=data);
+    
+  
+
+# mockup for the data 
+#data=[{
+#  "city": "San Francisco",
+#  "state": "CA",
+#  "venues": [{
+#   "id": 1,
+#   "name": "The Musical Hop",
+#   "num_upcoming_shows": 0,
+# }, {
+#   "id": 3,
+#   "name": "Park Square Live Music & Coffee",
+#    "num_upcoming_shows": 1,
+# }]
+#  }, {
+#  "city": "New York",
+#  "state": "NY",
+#  "venues": [{
+#    "id": 2,
+#    "name": "The Dueling Pianos Bar",
+#    "num_upcoming_shows": 0,
+#  }]
+# }]
+
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
