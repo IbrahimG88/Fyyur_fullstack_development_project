@@ -83,15 +83,15 @@ class Artist(db.Model):
 
 #my: adding Show table:
 class Show(db.Model):
-    __tablename__ = 'Show'
+  __tablename__ = 'Show'
 
-    id = db.Column(db.Integer, primary_key=True)
-	  venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'))
-    venue_name = db.Column(db.String(120))
-    artist_id= db.Column(db.Integer, db.ForeignKey('Artist.id'))
-    artist_name = db.Column(db.String(120))
-    artist_image_link = db.Column(db.String(120))
-    start_time = db.Column(db.DateTime)
+  id = db.Column(db.Integer, primary_key=True)
+  venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'))
+  venue_name = db.Column(db.String(120))
+  artist_id= db.Column(db.Integer, db.ForeignKey('Artist.id'))
+  artist_name = db.Column(db.String(120))
+  artist_image_link = db.Column(db.String(120))
+  start_time = db.Column(db.DateTime)
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -769,7 +769,7 @@ def edit_venue(venue_id):
 
   
  
- return render_template('forms/edit_venue.html', form=form, venue=venue)
+  return render_template('forms/edit_venue.html', form=form, venue=venue)
 
   '''
   Mocckup data
@@ -795,7 +795,7 @@ def edit_venue_submission(venue_id):
   # TODO: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
 
-error = False  
+  error = False  
   venue = Venue.query.get(venue_id)
 
 # here we create atransaction to commit the updated attribute for the venue
@@ -892,7 +892,7 @@ def shows():
   #       num_shows should be aggregated based on number of upcoming shows per venue.
  
  # query to select all shows
- shows_query = db.session.query(Show).join(Artist).join(Venue).all()
+  shows_query = db.session.query(Show).join(Artist).join(Venue).all()
 
   data = []
 
@@ -909,7 +909,7 @@ def shows():
   
   return render_template('pages/shows.html', shows=data)
  
- '''
+'''
  Mockup data
   data=[{
     "venue_id": 1,
@@ -947,7 +947,7 @@ def shows():
     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     "start_time": "2035-04-15T20:00:00.000Z"
   }]
-  '''
+'''
 
 
 @app.route('/shows/create')
@@ -980,7 +980,7 @@ def create_show_submission():
     flash('An error occurred. Show could not be listed.')
   if not error: 
   # on successful db insert, flash success
-  flash('Show was successfully listed!')
+    flash('Show was successfully listed!')
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Show could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
